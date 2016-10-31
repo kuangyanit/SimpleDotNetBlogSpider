@@ -29,6 +29,14 @@ namespace BlogSpider
 
         public static void GetZhaojieNewBlog()
         {
+
+            string path = AppDomain.CurrentDomain.BaseDirectory + "ZhaojieNewBlog.txt";
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+
+
             //zhaojie 博客地址为 http://blog.zhaojie.me/
             //共31页
 
@@ -71,7 +79,7 @@ namespace BlogSpider
             }
 
             string content = JsonConvert.SerializeObject(blogList);
-            string path = AppDomain.CurrentDomain.BaseDirectory + "ZhaojieNewBlog.txt";
+           
             File.AppendAllText(path, content, Encoding.UTF8);
 
 
@@ -79,6 +87,13 @@ namespace BlogSpider
 
         public static void GetZhaojieRawBlog()
         {
+
+            string path = AppDomain.CurrentDomain.BaseDirectory + "ZhaojieRawBlog.txt";
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+
             //zhaojie 博客地址为 http://www.cnblogs.com/JeffreyZhao/
             //共16页
 
@@ -116,7 +131,7 @@ namespace BlogSpider
             }
 
             string content = JsonConvert.SerializeObject(blogList);
-            string path = AppDomain.CurrentDomain.BaseDirectory + "ZhaojieRawBlog.txt";
+          
             File.AppendAllText(path, content, Encoding.UTF8);
 
 
