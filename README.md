@@ -1,4 +1,4 @@
-# 老赵博客爬虫
+# 博客爬虫
 
 ## A.实现细则
 - 利用WebClient对象下载相应的html网页，比如[这个](http://blog.zhaojie.me/?page=1)
