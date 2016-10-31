@@ -17,7 +17,10 @@ namespace BlogSpider
         static void Main(string[] args)
         {
             Console.WriteLine("爬取开始");
-            GetZhaojieRawBlog();
+            // GetCNBlogsWeeklyHotPot();
+
+            GetsDeserializedData(AppDomain.CurrentDomain.BaseDirectory + "CNBlogsWeeklyHotPot.txt");
+
             Console.WriteLine("爬取完成");
             Console.ReadKey();
 
@@ -65,12 +68,12 @@ namespace BlogSpider
 
 
                 }
-
-                string content = JsonConvert.SerializeObject(blogList);
-                string path = AppDomain.CurrentDomain.BaseDirectory + page + ".txt";
-                File.AppendAllText(path, content, Encoding.UTF8);
-
             }
+
+            string content = JsonConvert.SerializeObject(blogList);
+            string path = AppDomain.CurrentDomain.BaseDirectory + "ZhaojieNewBlog.txt";
+            File.AppendAllText(path, content, Encoding.UTF8);
+
 
         }
 
@@ -83,7 +86,7 @@ namespace BlogSpider
 
             for (int page = 1; page <= 16; page++)
             {
-               
+
                 //下载html
                 string url = "http://www.cnblogs.com/JeffreyZhao/default.aspx?page=" + page;
                 WebClient web = new WebClient();
@@ -110,13 +113,79 @@ namespace BlogSpider
                     blogList.Add(new BlogInfo() { Title = childTitle, Link = childHref, BriefIntro = intro });
                 }
 
-
-
-                string content = JsonConvert.SerializeObject(blogList);
-                string path = AppDomain.CurrentDomain.BaseDirectory + "\\Raw\\" + page + ".txt";
-                File.AppendAllText(path, content, Encoding.UTF8);
-
             }
+
+            string content = JsonConvert.SerializeObject(blogList);
+            string path = AppDomain.CurrentDomain.BaseDirectory + "ZhaojieRawBlog.txt";
+            File.AppendAllText(path, content, Encoding.UTF8);
+
+
+        }
+
+        public static void GetCNBlogsWeeklyHotPot()
+        {
+
+            string path = AppDomain.CurrentDomain.BaseDirectory + "CNBlogsWeeklyHotPot.txt";
+
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+
+            //博客园团队-每周热点回顾 博客地址为 http://www.cnblogs.com/cmt/tag/每周热点回顾/
+            //http://www.cnblogs.com/cmt/tag/每周热点回顾/default.html?page=1
+            //共16页
+
+            List<BlogInfo> blogList = new List<BlogInfo>();
+
+            for (int page = 1; page <= 16; page++)
+            {
+
+                //下载html
+                string url = "http://www.cnblogs.com/cmt/tag/每周热点回顾/default.html?page=" + page;
+
+                WebClient web = new WebClient();
+                byte[] buffer = web.DownloadData(url);
+                string html = Encoding.UTF8.GetString(buffer);
+
+                //解析html
+                NSoup.Nodes.Document doc = NSoup.NSoupClient.Parse(html);
+                Element targetRootEle = doc.GetElementById("myposts");
+                Elements targetEles = targetRootEle.GetElementsByClass("PostList");
+
+                for (int i = 0; i < targetEles.Count; i++)
+                {
+
+                    Element targetRootFirstChild = targetEles[i].GetElementsByClass("postTitl2")[0];
+                    Element targetRootSecondChild = targetEles[i].GetElementsByClass("postDesc2")[0];
+                    Element targetRootFirstChildChildren = targetRootFirstChild.Children[0];
+
+
+
+                    string briefInfo = targetRootSecondChild.Text().Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries)[1];
+                    string childTitle = targetRootFirstChildChildren.Text();
+                    string childHref = targetRootFirstChildChildren.Attr("href");
+                    blogList.Add(new BlogInfo() { Title = childTitle, Link = childHref, BriefIntro = briefInfo });
+                }
+            }
+
+            string content = JsonConvert.SerializeObject(blogList);
+
+            File.AppendAllText(path, content, Encoding.UTF8);
+        }
+
+
+        public static List<BlogInfo> GetsDeserializedData(string filePath, string serializedData = "")
+        {
+            if (string.IsNullOrEmpty(serializedData))
+            {
+                serializedData = File.ReadAllText(filePath, Encoding.UTF8);
+            }
+
+            List<BlogInfo> blogList = new List<BlogInfo>();
+            blogList = JsonConvert.DeserializeObject<List<BlogInfo>>(serializedData);
+            return blogList;
+
         }
     }
 
