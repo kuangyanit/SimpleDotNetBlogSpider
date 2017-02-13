@@ -7,7 +7,3 @@
 
 :three: 将需要的信息存储到文本文件中
 
-
-
-
-<i class="fa fa-eercast" aria-hidden="true"></i>
